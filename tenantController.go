@@ -8,40 +8,50 @@ import (
 )
 
 // Add new tenant
-func addTenant(w http.ResponseWriter, r *http.Request) {
-	var newTenant tenant
+func postTenant(w http.ResponseWriter, r *http.Request) {
+	var newTenant Tenant
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&newTenant)
 
-	if newTenant.ID == "" || newTenant.Name == "" {
+	if newTenant.Name == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	tenants = append(tenants, newTenant)
-	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(newTenant)
+	err := addTenant(newTenant.Name)
+	if err != nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 // List all tenants
 func getTenants(w http.ResponseWriter, r *http.Request) {
-	if len(tenants) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+
+	tenants := getAllTenants()
+	if len(*tenants) == 0 {
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(tenants)
 }
 
 // Get one tenant by ID
 func getTenant(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	id := mux.Vars(r)["id"]
 
-	for _, tenant := range tenants {
-		if tenant.ID == id {
-			json.NewEncoder(w).Encode(tenant)
-		}
+	tenant := getTenantById(id)
+	if tenant == nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(tenant)
 }

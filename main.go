@@ -8,6 +8,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "password"
+	dbname   = "postgres"
+)
+
 func homeLink(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Reservation manager server")
 }
@@ -18,11 +26,11 @@ func main() {
 	router.HandleFunc("/", homeLink).Methods("GET")
 	router.HandleFunc("/apartments", getApartments).Methods("GET")
 	router.HandleFunc("/apartments/{id}", getApartment).Methods("GET")
-	router.HandleFunc("/apartments", addApartment).Methods("POST")
+	router.HandleFunc("/apartments", postApartment).Methods("POST")
 
 	router.HandleFunc("/tenants", getTenants).Methods("GET")
 	router.HandleFunc("/tenants/{id}", getTenant).Methods("GET")
-	router.HandleFunc("/tenants", addTenant).Methods("POST")
+	router.HandleFunc("/tenants", postTenant).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -8,40 +8,50 @@ import (
 )
 
 // Add new apartment
-func addApartment(w http.ResponseWriter, r *http.Request) {
-	var newApartment apartment
+func postApartment(w http.ResponseWriter, r *http.Request) {
+	var newApartment Apartment
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&newApartment)
 
-	if newApartment.ID == "" || newApartment.Name == "" {
+	if newApartment.Name == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	apartments = append(apartments, newApartment)
-	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(newApartment)
+	err := addApartment(newApartment.Name)
+	if err != nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 // List all apartments
 func getApartments(w http.ResponseWriter, r *http.Request) {
-	if len(apartments) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+
+	apartments := getAllApartements()
+	if len(*apartments) == 0 {
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(apartments)
 }
 
 // Get one apartment by ID
 func getApartment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
 	id := mux.Vars(r)["id"]
 
-	for _, apartment := range apartments {
-		if apartment.ID == id {
-			json.NewEncoder(w).Encode(apartment)
-		}
+	apartment := getApartementById(id)
+	if apartment == nil {
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(apartment)
 }

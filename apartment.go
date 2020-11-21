@@ -22,12 +22,12 @@ func getApartementById(id string) *Apartment {
 	rows, err := db.Query("SELECT * FROM apartment WHERE a_id=$1", id)
 	defer rows.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	if rows.Next() {
 		err = rows.Scan(&apartment.ID, &apartment.Name, &apartment.Created_at)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 		return &apartment
 	}
@@ -42,7 +42,7 @@ func getAllApartements() *Apartments {
 	rows, err := db.Query("SELECT * FROM apartment")
 	defer rows.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	for rows.Next() {
@@ -60,7 +60,7 @@ func addApartment(name string) error {
 
 	_, err := db.Exec("INSERT INTO apartment (a_name, a_created_at) VALUES($1, $2)", name, time.Now())
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 		return err
 	}
 

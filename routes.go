@@ -18,6 +18,7 @@ func initializeRouter() *mux.Router {
 	// endpoints for reservation entity
 	router.HandleFunc("/reservations", getReservations).Methods("GET")
 	router.HandleFunc("/reservations", postReservation).Methods("POST")
+	router.HandleFunc("/reservations/{id}", deleteReservation).Methods("DELETE")
 
 	return router
 }

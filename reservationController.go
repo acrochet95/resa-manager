@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // Add new reservation
@@ -11,9 +13,6 @@ func postReservation(w http.ResponseWriter, r *http.Request) {
 	var resa Reservation
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&resa)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	log.Println(resa)
 	if !isReservationValid(resa) {
@@ -48,4 +47,19 @@ func getReservations(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(reservations)
+}
+
+// List all reservation
+func deleteReservation(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+	id := mux.Vars(r)["id"]
+
+	if !deleteReservationById(id) {
+		log.Printf("No reservation with id %s to delete", id)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	log.Printf("Reservation with id %s deleted", id)
+	w.WriteHeader(http.StatusOK)
 }

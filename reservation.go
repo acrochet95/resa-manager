@@ -27,7 +27,7 @@ func findAllReservations() *Reservations {
 	rows, err := db.Query("SELECT * FROM reservation")
 	defer rows.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	for rows.Next() {
@@ -60,7 +60,7 @@ func addReservation(resa Reservation) error {
 		resa.Apartment_Id, resa.Tenant_Id, resa.Price, resa.Description, resa.From, resa.To, resa.Paid)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 		return err
 	}
 	return nil
@@ -68,4 +68,17 @@ func addReservation(resa Reservation) error {
 
 func isReservationValid(resa Reservation) bool {
 	return resa.Apartment_Id != 0 && resa.Tenant_Id != 0 && resa.Price != 0 && !resa.From.IsZero() && !resa.To.IsZero() && (resa.From.Before(resa.To) || resa.From.Equal(resa.To))
+}
+
+func deleteReservationById(id string) bool {
+	db := getDatabase()
+	defer db.Close()
+
+	res, err := db.Exec("DELETE FROM reservation WHERE r_id=$1", id)
+	count, err := res.RowsAffected()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return count > 0
 }

@@ -22,12 +22,12 @@ func getTenantById(id string) *Tenant {
 	rows, err := db.Query("SELECT * FROM tenant WHERE t_id=$1", id)
 	defer rows.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	if rows.Next() {
 		err = rows.Scan(&tenant.ID, &tenant.Name, &tenant.Created_at)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 		return &tenant
 	}
@@ -42,7 +42,7 @@ func getAllTenants() *Tenants {
 	rows, err := db.Query("SELECT * FROM tenant")
 	defer rows.Close()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	for rows.Next() {
@@ -60,7 +60,7 @@ func addTenant(name string) error {
 
 	_, err := db.Exec("INSERT INTO tenant (t_name, t_created_at) VALUES($1, $2)", name, time.Now())
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 		return err
 	}
 
